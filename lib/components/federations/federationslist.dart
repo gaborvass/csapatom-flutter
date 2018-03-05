@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'dart:io';
+import '../../config/application.dart';
+import '../../helpers/request_handler.dart';
 
 class FederationsWidget extends StatefulWidget {
   @override
@@ -25,25 +25,7 @@ class FederationsWidgetState extends State<FederationsWidget> {
   }
 
   _LoadFederations() async {
-    var url = 'https://adatbank-backend.herokuapp.com/federations';
-    var httpClient = new HttpClient();
-
-    String resultTxt;
-    List<dynamic> result;
-    try {
-      var request = await httpClient.getUrl(Uri.parse(url));
-      var response = await request.close();
-      if (response.statusCode == HttpStatus.OK) {
-        var json = await response.transform(UTF8.decoder).join();
-        result = JSON.decode(json);
-      } else {
-        resultTxt =
-            'Error getting IP address:\nHttp status ${response.statusCode}';
-      }
-    } catch (exception) {
-      resultTxt = 'Failed getting IP address';
-    }
-
+    List result = await RequestHandler.LoadFederations();
     // If the widget was removed from the tree while the message was in flight,
     // we want to discard the reply rather than calling setState to update our
     // non-existent appearance.
@@ -91,8 +73,15 @@ class FederationItemWidget extends StatelessWidget {
           ),
           title: new Text(this.federation.federationName),
           enabled: true,
+          onTap: () {
+            showLeagues(context, this.federation.federationId);
+          },
         ),
         decoration:
             new BoxDecoration(border: new Border(bottom: new BorderSide())));
+  }
+
+  void showLeagues(BuildContext context, var federationId) {
+    Application.router.navigateTo(context, "/leagues/46/$federationId");
   }
 }
